@@ -45,6 +45,7 @@ The paths below are relative; the "./" translates to current directory so if you
 Note: Some of the lines below that display dataframes have been commented to make this notebook knit friendly. If you are running this notebook within RStudio, you should uncomment the lines so you can see how the dataframes change as we process the data
 
 ```{r}
+# note file name
 path_US_Death <- "./COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv"
 path_US_confirmed <- "./COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv"
 path_int_Death <- "./COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv"
@@ -89,6 +90,7 @@ cases = cases %>% group_by(Province_State) %>% summarise(across(starts_with("X")
 cases_int = cases_int %>% group_by(Country.Region) %>% summarise(across(starts_with("X"), sum))
 head(cases_int) #uncomment to see dataframe in RStudio
 
+?group_by
 deaths = deaths %>% group_by(Province_State) %>% summarise(across(starts_with("X"), sum))
 deaths_int = deaths_int %>% group_by(Country.Region) %>% summarise(across(starts_with("X"), sum))
 head(deaths_int) #uncomment to see dataframe in RStudio
@@ -106,7 +108,8 @@ Let's do this with the data that we have by using the melt command from the data
 setDT(cases)
 setDT(cases_int)
 cases = cases %>% melt(cases, id=c("Province_State"), measure=patterns("^X"), value.name="Cases", variable.name="Date")
-cases_int = cases_int %>% melt(cases_int, id=c("Country.Region"), measure=patterns("^X"), value.name="Cases", variable.name="Date")
+cases_int = cases_int %>% melt(cases_int, id=c("Country.Region"), measure=patterns("^X"), value.name ="Cases", variable.name="Date")
+
 head(cases_int)
 head(cases)
 
@@ -229,8 +232,39 @@ For my analyses,
 1. I want to make a visual map of the US with infections over time (animated) like had been done in the example above. 
 
 ```{r}
+theme_set(theme_bw())
+
+cases_int_plt_1 = ggplot(covid_int, #The dataframe we are using to create the plot
+                    aes(x=Date,y=Cases, color = covid_int$Country.Region)) + #The x and y variables
+  geom_point(show.legend = F, size = 0.1) + #What each point looks like
+  labs(x="Date", #Label of X Axis
+       y="Cases", #Label of Y Axis
+       title=paste("COVID Cases Worldwide Over Time")) #Title
+plot(cases_int_plt_1)
+
+cases_int_plt_2 = ggplot(covid_int, 
+                     aes(x=Date,y=Deaths)) +
+  geom_point(show.legend = FALSE, size = .1, aes(color = covid_int$Country.Region)) + 
+  labs(x="Date",
+       y="Deaths",
+       title=paste("COVID Deaths Worldwide Over Time"))
+plot(cases_int_plt_2)
+
+total_deaths_US = ggplot(covid_US, 
+                  aes(x=Province_State, y=Deaths)) +
+                  geom_point(show.legend = FALSE, size = .1, aes(label.fontsize = 8)) + 
+                  labs(x="State",
+                       y="Deaths",
+                  title=paste("Total COVID Deaths by State")) +
+                  theme(axis.text.x = element_text(angle = 90)) 
+plot(total_deaths_US)
 
 ```
 
 
 2. I want a graph of comparisons betweend different countries (maybe as a violin plot...?)
+
+```{r}
+pnorm(1.28, 0, 1)
+```
+
