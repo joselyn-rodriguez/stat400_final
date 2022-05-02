@@ -1,5 +1,5 @@
 ---
-title: "R_Proj_Final"
+title: "STAT400 Final R-Project"
 author: "Joselyn Rodriguez"
 date: "4/23/2022"
 output: html_document
@@ -127,56 +127,114 @@ covid_int <- merge(cases_int, deaths_int, by = c("Country.Region", "Date"))
 
 
 
-### Introduction
+## Introduction
 
-COVID-19 is a coronavirus that was first identified in Wuhan, China in December of 2019. Since it's first appearance, it has rapidly spread across the world causing a global pandemic that has now lasted for over three years. Since it first appeared, countries began enforcing regulations such as social distancing and mask wearing in order to curb the spread of the virus. Most importantly, a vaccine was rapidly developed and distributed within the year after the first cases. Soon after development, the vaccine was administered to civilians across the world. While this was a great step forward, due to global imbalances of power, early distribution of vaccines was limited to those richest countries. Additionally, while the original variant had shown promise of dying down, new, more contagious variants are continuously threatening the promise of an end to the pandemic. While the end of the pandemic-era of COVID-19 seems to be close in our future, its effects are ever present and will likely be a part of our lives in the long-term. In order to better understand the behavior of the virus and it's impact around the world, we will be exploring how the virus spread throughout different countries before and after release of the vaccine. This information is useful in determining the role vaccine distribution has had on the impact of COVID-19 across the world.
+COVID-19 is a coronavirus that was first identified in Wuhan, China in December 2019. Since its first appearance, COVID-19 has rapidly spread across the world, causing a global pandemic that has now lasted for several years (“CDC Museum COVID-19 Timeline”). To reduce the virus’ spread, countries began enforcing regulations such as social distancing and mask wearing. But, perhaps the most important countermeasure is the vaccine that was rapidly developed and distributed within the year after the first cases. Soon after development, the vaccine was administered to civilians across the world. While this was a great step forward, there are challenges that arose, thus allowing for the pandemic to continue. These issues are the imbalances of power — which meant that early distribution of vaccines was limited to only the richest countries — and the rise of new, more contagious variants, like the Omicron and Delta variants. 
+While the end of the pandemic-era of COVID-19 seems to be in our near future, its effects are ever present and will likely be long-lasting, continuing to permeate our daily lives for the foreseeable future (Susskind). 
+In order to better understand the behavior of the virus and its impact around the world, we will be exploring how the virus spread by using the number of cases and the number of deaths across different countries. We will see how these numbers change before and after the release of the vaccine in these countries to determine the role vaccine distribution has had on the impact of COVID-19 across the world. 
+
+Given the difference in times of release of vaccines and vaccine development across the world as well as socio-political reception of regulation, the spread and impact of the virus is expected to differ according to several factors (“Tracking Coronavirus Vaccinations Around the World”). 
+
+In this exploratory analysis, we aim to explore the following questions: What is the relationship between cases and deaths due to COVID-19 in countries across continents? What about across the United States? Finally, what effect did the release of the vaccine (to the general public) have on cases and deaths across the United States and the World? 
+Following this analysis, we will provide a brief conclusion that discusses what insight we can draw on the impact of the pandemic and consideration for what this might mean for future pandemics. 
 
 
-### Analyses
+## Data Exploration and Analysis
+### *Relationship between the number of COVID-19 cases and deaths*
 
-```{r plot-1}
+The first idea we planned to explore in this study was that of the relationship between cases and deaths due to COVID-19. We’ll begin by taking a look at cases and deaths in different countries in the world. The following plot illustrates the total number of cases of COVID-19 and deaths over time.
+
+
+```{r}
 theme_set(theme_bw())
 
-cases_int_plt_1a = ggplot(covid_int, #The dataframe we are using to create the plot
+cases_int_plt <- ggplot(covid_int, #The dataframe we are using to create the plot
                     aes(x=Date,y=Cases, color = Country.Region)) + #The x and y variables
   geom_point(show.legend = F, size = 0.1) + 
   labs(x="Date", #Label of X Axis
        y="Cases", #Label of Y Axis
-       title=paste("COVID Cases Worldwide Over Time")) #Title
-plot(cases_int_plt_1a)
+       title=paste("COVID Cases Worldwide Over Time"))
+
+deaths_int_plt <- ggplot(covid_int, #The dataframe we are using to create the plot
+                    aes(x=Date,y=Deaths, color = Country.Region)) + #The x and y variables
+  geom_point(show.legend = F, size = 0.1) + 
+  labs(x="Date", #Label of X Axis
+       y="Deaths", #Label of Y Axis
+       title=paste("COVID Deaths Worldwide Over Time"))
+
+```
+
+```{r}
+par(mfrow=c(1,2))
+plot(cases_int_plt)
+plot(deaths_int_plt)
 ```
 
 
-```{r plot-1}
+Zooming in to the top countries, we can see which countries have had the highest number of cases so far (note, the x-axis begins at 20 million cases). Here — perhaps unsurprisingly — we can see the US (now in purple) is leading in the number of cases followed by India, Brazil, France, and the United Kingdom. Comparing this to the graph of the highest number of deaths, the United States is still the highest, but the second highest here is now Brazil, followed by India and Russia. France and the UK, while having higher numbers of cases, seem to have been able to maintain a lower death rate than some countries with fewer cases. This may suggest that the relationship between cases and deaths is mediated by other factors. While only speculative, these factors may include medical capacity and infrastructure. 
+
+
+```{r}
 # trying to find out what those top three are
 
 top_cases <- covid_int %>% 
-                  filter(Cases> 20000000)
+                  filter(Cases > 20000000)
 
-cases_int_plt_top_cases = ggplot(top_cases, #The dataframe we are using to create the plot
+top_cases_int_plt <-  ggplot(top_cases, #The dataframe we are using to create the plot
                     aes(x=Date,y=Cases, color = Country.Region)) + #The x and y variables
   geom_point(show.legend = T, size = 0.5) + 
   labs(x="Date", #Label of X Axis
        y="Cases", #Label of Y Axis
        title=paste("Top COVID Cases Worldwide Over Time")) #Title
-plot(cases_int_plt_top_cases)
-
 ```
+
 
 ```{r}
 top_deaths <- covid_int %>% 
                 filter(Deaths > 300000)
-cases_int_plt_top_deaths = ggplot(top_deaths, #The dataframe we are using to create the plot
+top_deaths_int_plt <-  ggplot(top_deaths, #The dataframe we are using to create the plot
                     aes(x=Date,y=Deaths, color = Country.Region)) + #The x and y variables
   geom_point(show.legend = T, size = 0.5) + 
   labs(x="Date", #Label of X Axis
        y="Deaths", #Label of Y Axis
        title=paste("Top COVID Deaths Worldwide Over Time")) #Title
-plot(cases_int_plt_top_deaths)
+```
+
+```{r}
+plot(top_cases_int_plt)
+plot(top_deaths_int_plt)
+```
+
+Taking a closer look at the daily rates of cases and deaths, we see that the number of daily cases is not linear, but rather comes in waves with the most recent peak in the winter of 2022. Overall, the US (the pink line) is leading in terms of number of cases, but the graph’s overall trend shows that many countries across the world each experience their own peaks throughout the year. Interestingly, the pattern of deaths doesn’t seem to follow quite the same pattern as the number of cases. While there are also peaks in deaths throughout the year, the variance in the days is much wider, suggesting that there are more deaths spread out before and after we see the peaks in the number of cases (however, note the values of the y-axis indicate there are much fewer deaths than cases). This may be suggestive of longer term effects of COVID-19. 
+
+
+
+```{r}
+daily_cases_int <- ggplot(covid_int, 
+                    aes(x=Date,y=cases_7day, color = Country.Region)) +
+                    geom_line(show.legend = F) + 
+                    labs(x="Date", 
+                         y="Daily Cases", 
+                         title=paste("Daily COVID Cases in World Over Time (7 day average)"))
 ```
 
 
-Looking at the number of cases of COVID world-wide, we can see that there were several situations in which the virus platued before increasing rapidly again. The virus can thus be seen to be increasing in a step-wise fashion. 
+```{r}
+daily_deaths_int <- ggplot(covid_int, 
+                    aes(x=Date,y=deaths_7day, color = Country.Region)) +
+                    geom_line(show.legend = F) + 
+                    labs(x="Date", 
+                         y="Daily Deaths", 
+                         title=paste("Daily COVID Deaths in World Over Time (7 day average)")) 
+```
+
+
+```{r}
+plot(daily_cases_int)
+plot(daily_deaths_int)
+```
+
+Now, taking a closer look at just the United States, we see a similar trend to the rest of the world.  Importantly, we can now see how much of the trend worldwide was due to the United States alone. 
 
 ```{r}
 # daily covid cases 
@@ -189,39 +247,25 @@ daily_cases_US = ggplot(covid_US,
 plot(daily_cases_US)
 
 ```
+
 ```{r}
-daily_deaths_us <- ggplot(covid_US, 
+daily_deaths_US <- ggplot(covid_US, 
                     aes(x=Date,y=deaths_7day, color = Province_State)) +
                     geom_line(show.legend = F) + 
                     labs(x="Date", 
                          y="Daily Deaths", 
                          title=paste("Daily COVID Deaths in US Over Time (7 day average)"))
-plot(daily_deaths_us)
 ```
-
 
 ```{r}
-daily_cases_int <- ggplot(covid_int, 
-                    aes(x=Date,y=cases_7day, color = Country.Region)) +
-                    geom_line(show.legend = F) + 
-                    labs(x="Date", 
-                         y="Daily Cases", 
-                         title=paste("Daily COVID Cases in World Over Time (7 day average)")) 
-plot(daily_cases_int)
+plot(daily_cases_US)
+plot(daily_deaths_US)
 ```
 
-
-```{r}
-daily_deaths_int <- ggplot(covid_int, 
-                    aes(x=Date,y=deaths_7day, color = Country.Region)) +
-                    geom_line(show.legend = F) + 
-                    labs(x="Date", 
-                         y="Daily Deaths", 
-                         title=paste("Daily COVID Deaths in World Over Time (7 day average)")) 
-plot(daily_deaths_int)
-```
+This figure shows the progression of daily COVID cases over time in the United States. It  illustrates the waves of cases we’ve been seeing throughout the pandemic, particularly during the winter months in January 2021 and January 2022. Importantly, we can see that the number of cases in the current year, 2022, are actually higher than those from last year. This may be indicative of the highly contagious variants that have been making their way through the United States during this time. If this is true, then we would also expect to see fewer deaths associated with this peak, given that new variants such as Omicron, while more infectious, are generally milder strains of COVID-19 (“What You Need to Know About Variants”). Examining the daily deaths, we see the number of deaths has in fact dropped from 2021. 
 
 
+### *Exploration of Vaccine Efficacy*
 
 ```{r}
 countries_4_vaccine <- covid_int %>% 
@@ -236,10 +280,7 @@ top_country_vaccine_deaths <- ggplot(countries_4_vaccine, aes(x=Date,y=Deaths)) 
   geom_vline(aes(xintercept = as.Date("2021-05-01")), color = "#00ba38") +
   labs(x="Date",
        y="Deaths",
-       title=paste("COVID Deaths Worldwide Over Time"))
-
-plot(top_country_vaccine_deaths)
-
+       title=paste("COVID Deaths in Select Countries Pre/Post-Vaccine"))
 ```
 
 ```{r}
@@ -251,10 +292,31 @@ top_country_vaccine_deaths_daily <- ggplot(countries_4_vaccine, aes(x=Date,y=dea
   geom_vline(aes(xintercept = as.Date("2021-05-01")), size = 0.5, color = "#00ba38") +
   labs(x="Date",
        y="Daily Deaths",
-       title=paste("Daily COVID Deaths (7 day average) Worldwide Over Time"))
-
-plot(top_country_vaccine_deaths_daily)
+       title=paste("Daily COVID Deaths (7 day average) in Select Countries Pre/Post-Vaccine"))
 ```
+
+
+```{r}
+plot(top_country_vaccine_deaths)
+plot(top_country_vaccine_deaths_daily)
+
+```
+
+In the first figure (pertaining to the total COVID deaths in these countries), the number of deaths related to COVID-19 in America had increased gradually after its initial release in December 2021 which is indicated by the first blue vertical line. However, the deaths clearly slowed down for at least a few months after the eligibility  of the vaccine was extended to all adults in the US in April 2021 (Crist). We see the rate at which the deaths accumulated slowed down before spiking up again around summer 2021. This was when America had seen a surge in cases again due to the rise of the Delta variant (Katella). 
+In the second figure (pertaining to the 7 day daily average number of deaths), while it is hard to tell with China, we can see the numbers for India and America have been affected by the release of the vaccine. 
+With India, the average number of deaths before the vaccine was released was rising rapidly; however, it seems after its release, the average hit a peak before drastically decreasing back to the levels before its spike in mid-2021. It seems to also have had a small surge around March 2022, around the same time America had its second surge post-eligibility for all adults 
+With America, as noted earlier, we observe a decrease in the averages in the months following April 2021 — even reaching new average lows comparable to those at the very start of the pandemic — before seeing a surge during summer of 2021 when the Delta variant ran rampant. While there are two notable surges after mass eligibility — one during summer of 2021 and another around March 2022 — the average number of deaths never reached the levels that it did during early 2021 that peaked at around 3400 deaths on average. Instead, these surges peaked at around 2100 deaths and 2600 deaths, respectively. Note that the vaccine had its initial release during late 2020 to early 2021, but it was only available to a select few people, like health care workers. 
+It is likely that, while not completely effective against these new variants, the release of the vaccine helped with minimizing these deaths. In addition, it appears that the surge around March 2022 was due to the changing definition of what a COVID-related death was and adjustments to previous reports (“Weekly epidemiological update”). Overall, there is a general trend in decreasing COVID-19 related deaths after the vaccine became widely available. 
+
+
+## Conclusion 
+
+In conclusion, the effects of COVID-19 have spread rapidly throughout the world since we saw the first cases at the end of 2019. While looking at the number of cases and deaths across the world, we see that, while the numbers are high, these numbers are largely driven by a select few countries including the US, India, and Brazil. Given the large population of these countries, this is to be expected. We also see that while the number of cases have been increasing as the virus spreads and new variants are discovered, the overall daily death rates have been decreasing. This is likely both because of the ongoing distribution of the vaccine as well as the fact that the newer variants have been shown to be less deadly albeit more infectious. Taking a closer look at the daily averages shows that while the number of cases have increased, the number of daily cases has been decreasing following vaccine rollout, thus proving the vaccine’s effectiveness. 
+ 
+## Future Work
+
+The present work explored the number of cases of COVID-19 and related deaths in the last two years. The dataset that was utilized was the COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University (“COVID-19 Data Repository”). While informative regarding total cases and deaths, this dataset did not allow exploration of other possible contributing factors including demographic information, vaccination percentages, and infrastructure. Future explorations that include this information may be able to provide more insight into the progression of the pandemic before and after vaccine rollout and the effectiveness of different responses to the pandemic throughout the world. 
+
 
 
 
@@ -284,38 +346,38 @@ plot(cases_us_and_china)
 ```
 
 ```{r}
-cases_int_plt_1e <- cases_int_plt_1c + 
-                        geom_point(show.legend = T, size = 0.1) +
-                        labs(x="Date",
-                         y="Cases",
-                         title=paste("COVID Cases Worldwide versus Deaths across countries")) 
-
-par(mfrow = c(2,1) )
-plot(cases_int_plt_1c)
-plot(cases_int_plt_1d) 
+# cases_int_plt_1e <- cases_int_plt_1c + 
+#                         geom_point(show.legend = T, size = 0.1) +
+#                         labs(x="Date",
+#                          y="Cases",
+#                          title=paste("COVID Cases Worldwide versus Deaths across countries")) 
+# 
+# par(mfrow = c(2,1) )
+# plot(cases_int_plt_1c)
+# plot(cases_int_plt_1d) 
 ```
 
 
 
 ```{r plot-2}
-cases_int_plt_2 = ggplot(covid_int, 
-                     aes(x=Date,y=Deaths)) +
-  geom_point(show.legend = FALSE, size = .1, aes(color = covid_int$Country.Region)) + 
-  labs(x="Date",
-       y="Deaths",
-       title=paste("COVID Deaths Worldwide Over Time"))
-plot(cases_int_plt_2)
+# cases_int_plt_2 = ggplot(covid_int, 
+#                      aes(x=Date,y=Deaths)) +
+#   geom_point(show.legend = FALSE, size = .1, aes(color = covid_int$Country.Region)) + 
+#   labs(x="Date",
+#        y="Deaths",
+#        title=paste("COVID Deaths Worldwide Over Time"))
+# plot(cases_int_plt_2)
 ```
 
 ```{r}
-total_deaths_US = ggplot(covid_US, 
-                  aes(x=Province_State, y=Deaths)) +
-                  geom_point(show.legend = FALSE, size = .1, aes(label.fontsize = 8)) + 
-                  labs(x="State",
-                       y="Deaths",
-                  title=paste("Total COVID Deaths by State")) +
-                  theme(axis.text.x = element_text(angle = 90)) 
-plot(total_deaths_US)
+# total_deaths_US = ggplot(covid_US, 
+#                   aes(x=Province_State, y=Deaths)) +
+#                   geom_point(show.legend = FALSE, size = .1, aes(label.fontsize = 8)) + 
+#                   labs(x="State",
+#                        y="Deaths",
+#                   title=paste("Total COVID Deaths by State")) +
+#                   theme(axis.text.x = element_text(angle = 90)) 
+# plot(total_deaths_US)
 ```
 
 
