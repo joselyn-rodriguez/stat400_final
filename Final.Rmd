@@ -16,6 +16,9 @@ library(ggrepel)
 library(scales)
 library(gapminder)
 library(data.table)
+
+options(scipen = 100)
+
 ```
 
 ```{r import-data}
@@ -32,37 +35,94 @@ cases_int <- read.csv(path_int_confirmed)
 ```
 
 ```{r pre-processing}
-cases = cases %>% select("Province_State" | starts_with("X"))
-cases_int = cases_int %>% select("Country.Region" | starts_with("X"))
+cases = cases %>% 
+  select("Province_State" | starts_with("X"))
+  
+cases_int = cases_int %>% 
+  select("Country.Region" | starts_with("X"))
 
-deaths = deaths %>% select("Province_State" | starts_with("X"))
-deaths_int = deaths_int %>% select("Country.Region" | starts_with("X"))
 
-cases = cases %>% group_by(Province_State) %>% summarise(across(starts_with("X"), sum))
-cases_int = cases_int %>% group_by(Country.Region) %>% summarise(across(starts_with("X"), sum))
+# for some reason only deaths has information about population 
+deaths = deaths %>% 
+            select("Province_State" | starts_with("X") | "Population")
 
-deaths = deaths %>% group_by(Province_State) %>% summarise(across(starts_with("X"), sum))
-deaths_int = deaths_int %>% group_by(Country.Region) %>% summarise(across(starts_with("X"), sum))
+deaths_int = deaths_int %>% 
+            select("Country.Region" | starts_with("X")) #doesnt have population?
+
+
+# here we're summing over all the different regions in the state/country
+cases = cases %>% 
+            group_by(Province_State) %>% 
+            summarise(across(starts_with("X"), sum))
+cases_int = cases_int %>% 
+                group_by(Country.Region) %>% 
+                summarise(across(starts_with("X"), sum))
+deaths = deaths %>% 
+              group_by(Province_State) %>% 
+              summarise(across(starts_with("X"), sum))
+deaths_int = deaths_int %>% 
+              group_by(Country.Region) %>% 
+              summarise(across(starts_with("X"), sum))
 
 setDT(cases)
 setDT(cases_int)
-cases = cases %>% melt(cases, id=c("Province_State"), measure=patterns("^X"), value.name="Cases", variable.name="Date")
-cases_int = cases_int %>% melt(cases_int, id=c("Country.Region"), measure=patterns("^X"), value.name ="Cases", variable.name="Date")
+
+cases = cases %>% 
+            melt(cases, id=c("Province_State"), measure=patterns("^X"), value.name="Cases", variable.name="Date")
+
+cases_int = cases_int %>% 
+            melt(cases_int, id=c("Country.Region"), measure=patterns("^X"), value.name ="Cases", variable.name="Date")
 
 
 setDT(deaths)
 setDT(deaths_int)
-deaths = deaths %>% melt(deaths, id=c("Province_State"), measure=patterns("^X"), value.name="Deaths", variable.name="Date")
-deaths_int = deaths_int %>% melt(deaths_int, id=c("Country.Region"), measure=patterns("^X"), value.name="Deaths", variable.name="Date")
 
+deaths = deaths %>% 
+            melt(deaths, id=c("Province_State"), measure=patterns("^X"), value.name="Deaths", variable.name="Date")
+deaths_int = deaths_int %>% 
+            melt(deaths_int, id=c("Country.Region"), measure=patterns("^X"), value.name="Deaths", variable.name="Date")
+
+# Changing the format so things work
 cases$Date = as.Date(cases$Date, format="X%m.%d.%y")
 cases_int$Date = as.Date(cases_int$Date, format="X%m.%d.%y")
 
 deaths$Date = as.Date(deaths$Date, format="X%m.%d.%y")
 deaths_int$Date = as.Date(deaths_int$Date, format="X%m.%d.%y")
 
+# adding in daily covid numbers
+cases <- cases %>% 
+            group_by(Province_State) %>% 
+            arrange(Date, .by_group = TRUE) %>%
+            mutate(daily_cases = Cases - lag(Cases, default = first(Cases))) %>% 
+            mutate(cases_7day = (Cases - lag(Cases, 7)) / 7)
+
+cases_int <-  cases_int %>% 
+            group_by(Country.Region) %>% 
+            arrange(Date, .by_group = TRUE) %>%
+            mutate(daily_cases = Cases - lag(Cases, default = first(Cases))) %>% 
+            mutate(cases_7day = (Cases - lag(Cases, 7)) / 7)
+
+deaths <- deaths %>% 
+            group_by(Province_State) %>% 
+            arrange(Date, .by_group = TRUE) %>%
+            mutate(daily_deaths = Deaths - lag(Deaths, default = first(Deaths))) %>% 
+            mutate(deaths_7day = (Deaths - lag(Deaths, 7)) / 7) %>% 
+            filter(daily_deaths >= 0 & deaths_7day >=0 )
+
+deaths_int <- deaths_int %>% 
+              group_by(Country.Region) %>% 
+              arrange(Date, .by_group = TRUE) %>%
+              mutate(daily_deaths = Deaths - lag(Deaths, default = first(Deaths))) %>% 
+              mutate(deaths_7day = (Deaths - lag(Deaths, 7)) / 7) %>% 
+              filter(daily_deaths >= 0 & deaths_7day >=0)
+
+              
+
+         
+# merging the data sets for cases and deaths
 covid_US <- merge(cases, deaths, by=c("Province_State", "Date"))
 covid_int <- merge(cases_int, deaths_int, by = c("Country.Region", "Date"))
+
 ```
 
 
@@ -78,25 +138,161 @@ COVID-19 is a coronavirus that was first identified in Wuhan, China in December 
 theme_set(theme_bw())
 
 cases_int_plt_1a = ggplot(covid_int, #The dataframe we are using to create the plot
-                    aes(x=Date,y=Cases, color = covid_int$Country.Region)) + #The x and y variables
-  geom_point(show.legend = F, size = 0.1) + #What each point looks like
+                    aes(x=Date,y=Cases, color = Country.Region)) + #The x and y variables
+  geom_point(show.legend = F, size = 0.1) + 
   labs(x="Date", #Label of X Axis
        y="Cases", #Label of Y Axis
        title=paste("COVID Cases Worldwide Over Time")) #Title
 plot(cases_int_plt_1a)
 ```
 
+
+```{r plot-1}
+# trying to find out what those top three are
+
+top_cases <- covid_int %>% 
+                  filter(Cases> 20000000)
+
+cases_int_plt_top_cases = ggplot(top_cases, #The dataframe we are using to create the plot
+                    aes(x=Date,y=Cases, color = Country.Region)) + #The x and y variables
+  geom_point(show.legend = T, size = 0.5) + 
+  labs(x="Date", #Label of X Axis
+       y="Cases", #Label of Y Axis
+       title=paste("Top COVID Cases Worldwide Over Time")) #Title
+plot(cases_int_plt_top_cases)
+
+```
+
+```{r}
+top_deaths <- covid_int %>% 
+                filter(Deaths > 300000)
+cases_int_plt_top_deaths = ggplot(top_deaths, #The dataframe we are using to create the plot
+                    aes(x=Date,y=Deaths, color = Country.Region)) + #The x and y variables
+  geom_point(show.legend = T, size = 0.5) + 
+  labs(x="Date", #Label of X Axis
+       y="Deaths", #Label of Y Axis
+       title=paste("Top COVID Deaths Worldwide Over Time")) #Title
+plot(cases_int_plt_top_deaths)
+```
+
+
 Looking at the number of cases of COVID world-wide, we can see that there were several situations in which the virus platued before increasing rapidly again. The virus can thus be seen to be increasing in a step-wise fashion. 
+
+```{r}
+# daily covid cases 
+daily_cases_US = ggplot(covid_US, 
+                    aes(x=Date,y=cases_7day, color = Province_State)) +
+                    geom_line(show.legend = F) + 
+                    labs(x="Date", 
+                         y="Daily Cases", 
+                         title=paste("Daily COVID Cases in the US Over Time (7 day average)")) 
+plot(daily_cases_US)
+
+```
+```{r}
+daily_deaths_us <- ggplot(covid_US, 
+                    aes(x=Date,y=deaths_7day, color = Province_State)) +
+                    geom_line(show.legend = F) + 
+                    labs(x="Date", 
+                         y="Daily Deaths", 
+                         title=paste("Daily COVID Deaths in US Over Time (7 day average)"))
+plot(daily_deaths_us)
+```
 
 
 ```{r}
-cases_int_plt_1b = ggplot(covid_int, #The dataframe we are using to create the plot
-                    aes(x=Deaths,y=Cases, color = covid_int$Country.Region)) + #The x and y variables
+daily_cases_int <- ggplot(covid_int, 
+                    aes(x=Date,y=cases_7day, color = Country.Region)) +
+                    geom_line(show.legend = F) + 
+                    labs(x="Date", 
+                         y="Daily Cases", 
+                         title=paste("Daily COVID Cases in World Over Time (7 day average)")) 
+plot(daily_cases_int)
+```
+
+
+```{r}
+daily_deaths_int <- ggplot(covid_int, 
+                    aes(x=Date,y=deaths_7day, color = Country.Region)) +
+                    geom_line(show.legend = F) + 
+                    labs(x="Date", 
+                         y="Daily Deaths", 
+                         title=paste("Daily COVID Deaths in World Over Time (7 day average)")) 
+plot(daily_deaths_int)
+```
+
+
+
+```{r}
+countries_4_vaccine <- covid_int %>% 
+                            filter(Country.Region == "US" | Country.Region == "China" | Country.Region == "India" | Country.Region == "South Korea")
+
+
+top_country_vaccine_deaths <- ggplot(countries_4_vaccine, aes(x=Date,y=Deaths)) +
+  geom_point(show.legend = T, size = .5, aes(color = Country.Region)) + 
+  # vaccine releases 
+  geom_vline(aes(xintercept = as.Date("2021-04-19")), color = "#619cff") + # hacky way of getting the colors right but it was driving me crazy
+  geom_vline(aes(xintercept = as.Date("2020-12-01")), color = "#f8786f") + 
+  geom_vline(aes(xintercept = as.Date("2021-05-01")), color = "#00ba38") +
+  labs(x="Date",
+       y="Deaths",
+       title=paste("COVID Deaths Worldwide Over Time"))
+
+plot(top_country_vaccine_deaths)
+
+```
+
+```{r}
+top_country_vaccine_deaths_daily <- ggplot(countries_4_vaccine, aes(x=Date,y=deaths_7day)) +
+  geom_point(show.legend = T, size = .5, aes(color = Country.Region)) + 
+  # vaccine releases 
+  geom_vline(aes(xintercept = as.Date("2021-04-19")), size = 0.5, color = "#619cff") + # hacky way of getting the colors right but it was driving me crazy
+  geom_vline(aes(xintercept = as.Date("2020-12-01")), size = 0.5, color = "#f8786f") + 
+  geom_vline(aes(xintercept = as.Date("2021-05-01")), size = 0.5, color = "#00ba38") +
+  labs(x="Date",
+       y="Daily Deaths",
+       title=paste("Daily COVID Deaths (7 day average) Worldwide Over Time"))
+
+plot(top_country_vaccine_deaths_daily)
+```
+
+
+
+
+```{r}
+cases_int_plt_1c = ggplot(covid_int, #The dataframe we are using to create the plot
+                    aes(x=Cases,y=Deaths, color = covid_int$Country.Region)) + #The x and y variables
   geom_point(show.legend = F, size = 0.1) + #What each point looks like
-  labs(x="Date", #Label of X Axis
-       y="Cases", #Label of Y Axis
-       title=paste("COVID Cases Worldwide Over Time")) #Title
-plot(cases_int_plt_1b)
+  labs(x="Cases", #Label of X Axis
+       y="Deaths", #Label of Y Axis
+       title=paste("COVID Cases Worldwide versus Deaths across countries")) #Title
+plot(cases_int_plt_1c)
+```
+
+```{r}
+# comparing US and China's response 
+US_and_China <- covid_int %>% 
+                    filter(Country.Region == "US"  | Country.Region ==  "China")
+
+cases_us_and_china <-  ggplot(US_and_China, #The dataframe we are using to create the plot
+                    aes(x=Date,y=Deaths, color = Country.Region)) + #The x and y variables
+                    geom_point(show.legend = T, size = 0.1) + #What each point looks like
+                    labs(x="Date", #Label of X Axis
+                         y="Deaths", #Label of Y Axis
+                         title=paste("COVID Deaths Worldwide versus Deaths across countries")) #Title
+plot(cases_us_and_china)
+```
+
+```{r}
+cases_int_plt_1e <- cases_int_plt_1c + 
+                        geom_point(show.legend = T, size = 0.1) +
+                        labs(x="Date",
+                         y="Cases",
+                         title=paste("COVID Cases Worldwide versus Deaths across countries")) 
+
+par(mfrow = c(2,1) )
+plot(cases_int_plt_1c)
+plot(cases_int_plt_1d) 
 ```
 
 
