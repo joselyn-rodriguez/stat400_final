@@ -1,6 +1,6 @@
 ---
 title: "STAT400 Final R-Project"
-author: "Amelia Hsu, Alexandra O’Keeffe, Joselyn Rodriguez, Muhammad Umar, Mariel Viray"
+author: "Amelia Hsu, Alexandra O’Keeffe (117245790), Joselyn Rodriguez (118294025), Muhammad Umar (116449489), Mariel Viray (117100891"
 date: "4/23/2022"
 output: html_document
 ---
@@ -266,6 +266,8 @@ This figure shows the progression of daily COVID cases over time in the United S
 
 
 ### *Exploration of Vaccine Efficacy*
+
+To look at the effect of vaccination (or specifically, vaccine release) on deaths related to COVID-19, we’ve separated out three countries to take a closer look at: The United States, China, and India. 
 
 ```{r}
 countries_4_vaccine <- covid_int %>% 
