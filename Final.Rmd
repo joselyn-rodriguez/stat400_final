@@ -1,6 +1,6 @@
 ---
 title: "STAT400 Final R-Project"
-author: "Joselyn Rodriguez"
+author: "Amelia Hsu, Alexandra O’Keeffe, Joselyn Rodriguez, Muhammad Umar, Mariel Viray"
 date: "4/23/2022"
 output: html_document
 ---
