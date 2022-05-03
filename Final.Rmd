@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 library(janitor)
 library(gganimate)
@@ -274,10 +274,10 @@ countries_4_vaccine <- covid_int %>%
 
 top_country_vaccine_deaths <- ggplot(countries_4_vaccine, aes(x=Date,y=Deaths)) +
   geom_point(show.legend = T, size = .5, aes(color = Country.Region)) + 
-  # vaccine releases 
-  geom_vline(aes(xintercept = as.Date("2021-04-19")), color = "#619cff") + # hacky way of getting the colors right but it was driving me crazy
-  geom_vline(aes(xintercept = as.Date("2020-12-01")), color = "#f8786f") + 
-  geom_vline(aes(xintercept = as.Date("2021-05-01")), color = "#00ba38") +
+  geom_vline(aes(xintercept = as.Date("2020-12-11")), size = 0.5, color = "#619cff") + # US-1
+  geom_vline(aes(xintercept = as.Date("2021-04-19")), size = 0.5, color = "#619cff") + # US-2
+  geom_vline(aes(xintercept = as.Date("2020-12-01")), size = 0.5, color = "#f8786f") + # China
+  geom_vline(aes(xintercept = as.Date("2021-05-01")), size = 0.5, color = "#00ba38") + # India
   labs(x="Date",
        y="Deaths",
        title=paste("COVID Deaths in Select Countries Pre/Post-Vaccine"))
@@ -287,9 +287,10 @@ top_country_vaccine_deaths <- ggplot(countries_4_vaccine, aes(x=Date,y=Deaths)) 
 top_country_vaccine_deaths_daily <- ggplot(countries_4_vaccine, aes(x=Date,y=deaths_7day)) +
   geom_point(show.legend = T, size = .5, aes(color = Country.Region)) + 
   # vaccine releases 
-  geom_vline(aes(xintercept = as.Date("2021-04-19")), size = 0.5, color = "#619cff") + # hacky way of getting the colors right but it was driving me crazy
-  geom_vline(aes(xintercept = as.Date("2020-12-01")), size = 0.5, color = "#f8786f") + 
-  geom_vline(aes(xintercept = as.Date("2021-05-01")), size = 0.5, color = "#00ba38") +
+  geom_vline(aes(xintercept = as.Date("2020-12-11")), size = 0.5, color = "#619cff") + # US-1
+  geom_vline(aes(xintercept = as.Date("2021-04-19")), size = 0.5, color = "#619cff") + # US-2
+  geom_vline(aes(xintercept = as.Date("2020-12-01")), size = 0.5, color = "#f8786f") + # China
+  geom_vline(aes(xintercept = as.Date("2021-05-01")), size = 0.5, color = "#00ba38") + # India
   labs(x="Date",
        y="Daily Deaths",
        title=paste("Daily COVID Deaths (7 day average) in Select Countries Pre/Post-Vaccine"))
@@ -316,69 +317,3 @@ In conclusion, the effects of COVID-19 have spread rapidly throughout the world 
 ## Future Work
 
 The present work explored the number of cases of COVID-19 and related deaths in the last two years. The dataset that was utilized was the COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University (“COVID-19 Data Repository”). While informative regarding total cases and deaths, this dataset did not allow exploration of other possible contributing factors including demographic information, vaccination percentages, and infrastructure. Future explorations that include this information may be able to provide more insight into the progression of the pandemic before and after vaccine rollout and the effectiveness of different responses to the pandemic throughout the world. 
-
-
-
-
-
-```{r}
-cases_int_plt_1c = ggplot(covid_int, #The dataframe we are using to create the plot
-                    aes(x=Cases,y=Deaths, color = covid_int$Country.Region)) + #The x and y variables
-  geom_point(show.legend = F, size = 0.1) + #What each point looks like
-  labs(x="Cases", #Label of X Axis
-       y="Deaths", #Label of Y Axis
-       title=paste("COVID Cases Worldwide versus Deaths across countries")) #Title
-plot(cases_int_plt_1c)
-```
-
-```{r}
-# comparing US and China's response 
-US_and_China <- covid_int %>% 
-                    filter(Country.Region == "US"  | Country.Region ==  "China")
-
-cases_us_and_china <-  ggplot(US_and_China, #The dataframe we are using to create the plot
-                    aes(x=Date,y=Deaths, color = Country.Region)) + #The x and y variables
-                    geom_point(show.legend = T, size = 0.1) + #What each point looks like
-                    labs(x="Date", #Label of X Axis
-                         y="Deaths", #Label of Y Axis
-                         title=paste("COVID Deaths Worldwide versus Deaths across countries")) #Title
-plot(cases_us_and_china)
-```
-
-```{r}
-# cases_int_plt_1e <- cases_int_plt_1c + 
-#                         geom_point(show.legend = T, size = 0.1) +
-#                         labs(x="Date",
-#                          y="Cases",
-#                          title=paste("COVID Cases Worldwide versus Deaths across countries")) 
-# 
-# par(mfrow = c(2,1) )
-# plot(cases_int_plt_1c)
-# plot(cases_int_plt_1d) 
-```
-
-
-
-```{r plot-2}
-# cases_int_plt_2 = ggplot(covid_int, 
-#                      aes(x=Date,y=Deaths)) +
-#   geom_point(show.legend = FALSE, size = .1, aes(color = covid_int$Country.Region)) + 
-#   labs(x="Date",
-#        y="Deaths",
-#        title=paste("COVID Deaths Worldwide Over Time"))
-# plot(cases_int_plt_2)
-```
-
-```{r}
-# total_deaths_US = ggplot(covid_US, 
-#                   aes(x=Province_State, y=Deaths)) +
-#                   geom_point(show.legend = FALSE, size = .1, aes(label.fontsize = 8)) + 
-#                   labs(x="State",
-#                        y="Deaths",
-#                   title=paste("Total COVID Deaths by State")) +
-#                   theme(axis.text.x = element_text(angle = 90)) 
-# plot(total_deaths_US)
-```
-
-
-### Conclusion
