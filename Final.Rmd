@@ -1,12 +1,15 @@
 ---
 title: "STAT400 Final R-Project"
-author: "Amelia Hsu, Alexandra O’Keeffe (117245790), Joselyn Rodriguez (118294025), Muhammad Umar (116449489), Mariel Viray (117100891"
+author: Amelia Hsu (117956023), Alexandra O’Keeffe (117245790), Joselyn Rodriguez (118294025),
+  Muhammad Umar (116449489), Mariel Viray (117100891
 date: "4/23/2022"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, fig.height=2)
 library(tidyverse)
 library(janitor)
 library(gganimate)
@@ -165,7 +168,7 @@ deaths_int_plt <- ggplot(covid_int, #The dataframe we are using to create the pl
 ```
 
 ```{r}
-par(mfrow=c(1,2))
+
 plot(cases_int_plt)
 plot(deaths_int_plt)
 ```
@@ -319,3 +322,31 @@ In conclusion, the effects of COVID-19 have spread rapidly throughout the world 
 ## Future Work
 
 The present work explored the number of cases of COVID-19 and related deaths in the last two years. The dataset that was utilized was the COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University (“COVID-19 Data Repository”). While informative regarding total cases and deaths, this dataset did not allow exploration of other possible contributing factors including demographic information, vaccination percentages, and infrastructure. Future explorations that include this information may be able to provide more insight into the progression of the pandemic before and after vaccine rollout and the effectiveness of different responses to the pandemic throughout the world. 
+
+## Works Cited
+AJMC Staff. “A Timeline of COVID-19 Developments in 2020.” AJMC, 1 Jan. 2021,
+www.ajmc.com/view/a-timeline-of-covid19-developments-in-2020. Accessed 2 May
+2022.
+
+“CDC Museum COVID-19 Timeline.” Centers for Disease Control and Prevention, 5 Jan. 2022, https://www.cdc.gov/museum/timeline/covid19.html. Accessed 30 Aug. 2022.
+
+“COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University.” Johns Hopkins University Center for Systems Science and Engineering, 28 Mar. 2022. https://github.com/CSSEGISandData/COVID-19/tree/ 07b1f98abad77a702ebebd28c1a04ba9b82867bd. Accessed 28 Aug. 2022.
+
+Crist, Carolyn. “All U.S. Adults Eligible for COVID-19 Vaccines.” WebMD, 20 Apr. 2021, www.webmd.com/vaccines/covid-19-vaccine/news/20210420/all-us-adults-eligible-covid-vaccines#:%7E:text=April%2020%2C%202021%20%2D%2D%20All,19%20deadline%20to%20open%20eligibility. Accessed 2 May 2022.
+
+Holder, Josh. “Tracking Coronavirus Vaccinations Around the World.” The New York Times, 2 May 2022, https://www.nytimes.com/interactive/2021/world/covid-vaccinations- tracker.html. Accessed 2 May 2022.
+
+Katella, Kathy. “5 Things To Know About the Delta Variant.” Yale Medicine, 1 Mar. 2022 https://www.yalemedicine.org/news/5-things-to-know-delta-variant-covid. Accessed 2 May 2022.
+
+Susskind, Daniel, et al. “How Will the World Be Different After COVID-19.” International
+Monetary Fund, Finance and Development, June 2020, www.imf.org/external/pubs/
+ft/fandd/2020/06/how-will-the-world-be-different-after-COVID-19.htm. Accessed 2 May 2022.
+
+“Weekly epidemiological update on COVID-19 - 29 March 2022.” World Health Organization, 29 Mar. 2022. www.who.int/publications/m/item/weekly-epidemiological- update-on-covid-19---29-march-2022. Accessed 2 May 2022.
+
+“What You Need to Know About Variants.” Centers for Disease Control and Prevention, 26 Apr. 2022. https://www.cdc.gov/coronavirus/2019-ncov/variants/about-variants.html#:~:text= New%20variants%20of%20the%20virus,causes%20COVID%2D19. Accessed 2 May 2022.
+
+Wikipedia contributors. “COVID-19 Vaccination in India.” Wikipedia, 2 May 2022,
+en.wikipedia.org/wiki/COVID-19_vaccination_in_India. Accessed 2 May 2022. 
+
+Zheng, Wen, et al. “COVID-19 Vaccination Program in the Mainland of China: A Subnational Descriptive Analysis on Target Population Size and Current Progress - Infectious Diseases of Poverty.” BioMed Central, Springer Nature, 15 Oct. 2021, idpjournal.biomedcentral.com/articles/10.1186/s40249-021-00909-1#:%7E:text=In%20the%20mainland%20of%20China%2C%20COVID%2D19%20vaccination%20program%20is,population. Accessed 2 May 2022.
